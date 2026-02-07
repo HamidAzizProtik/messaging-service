@@ -3,21 +3,21 @@ async function fetchMessages() {
     try {
         const res = await fetch('/messages');
         const messages = await res.json();
-        const ServiceDiv = document.getElementById('Service');
+        const chatDiv = document.getElementById('chat');
         
         // Store last message to avoid full re-render
-        const lastMsg = ServiceDiv.lastElementChild?.textContent;
+        const lastMsg = chatDiv.lastElementChild?.textContent;
         
-        ServiceDiv.innerHTML = '';
+        chatDiv.innerHTML = '';
         messages.forEach(msg => {
             const p = document.createElement('p');
             p.textContent = `[${new Date(msg[2]).toLocaleTimeString()}] ${msg[0]}: ${msg[1]}`;
-            ServiceDiv.appendChild(p);
+            chatDiv.appendChild(p);
         });
         
         // Only scroll if new message added
-        if (ServiceDiv.lastElementChild?.textContent !== lastMsg) {
-            ServiceDiv.scrollTop = ServiceDiv.scrollHeight;
+        if (chatDiv.lastElementChild?.textContent !== lastMsg) {
+            chatDiv.scrollTop = chatDiv.scrollHeight;
         }
     } catch (error) {
         console.error('Error fetching messages:', error);
@@ -60,11 +60,6 @@ class MessagingService {
         this.loadFromStorage();
         this.updateStatus();
         this.updateHeader();
-        
-        // Load saved theme
-        const savedTheme = localStorage.getItem('MessagingServiceTheme') || 'default';
-        document.getElementById('theme-select').value = savedTheme;
-        this.changeTheme(savedTheme);
     }
 
     cacheDOMElements() {
@@ -73,7 +68,6 @@ class MessagingService {
         this.sendBtn = document.getElementById('sendBtn');
         this.headerSubtitle = document.getElementById('header-subtitle');
         this.statusText = document.getElementById('status-text');
-        this.themeSelect = document.getElementById('theme-select');
     }
 
     attachEventListeners() {
@@ -102,11 +96,6 @@ class MessagingService {
         // Send button
         this.sendBtn.addEventListener('click', () => sendMessage());
 
-        // Theme selector
-        this.themeSelect.addEventListener('change', (e) => {
-            this.changeTheme(e.target.value);
-        });
-
         // Particle effects on mouse move
         document.addEventListener('mousemove', (e) => {
             this.createParticleOnMouse(e);
@@ -118,14 +107,14 @@ class MessagingService {
             this.statusText.textContent = `👋 ${this.username} - Online`;
             this.sendBtn.disabled = false;
         } else {
-            this.statusText.textContent = 'Ready to Service';
+            this.statusText.textContent = 'Ready to chat';
             this.sendBtn.disabled = true;
         }
     }
 
     updateHeader() {
         if (this.username) {
-            this.headerSubtitle.textContent = `Serviceting as ${this.username}`;
+            this.headerSubtitle.textContent = `Chatting as ${this.username}`;
         } else {
             this.headerSubtitle.textContent = 'Enter your name to start messaging';
         }
@@ -148,35 +137,6 @@ class MessagingService {
                 console.error('Failed to load settings:', e);
             }
         }
-    }
-
-    changeTheme(theme) {
-        const root = document.documentElement;
-        
-        switch(theme) {
-            case 'deep':
-                root.style.setProperty('--primary-black', '#0a0a15');
-                root.style.setProperty('--secondary-black', '#15152a');
-                root.style.setProperty('--tertiary-black', '#1f1f3a');
-                root.style.setProperty('--accent-green', '#00a86b');
-                root.style.setProperty('--accent-green-light', '#1abc9c');
-                break;
-            case 'forest':
-                root.style.setProperty('--primary-black', '#0d1b0f');
-                root.style.setProperty('--secondary-black', '#1a2d20');
-                root.style.setProperty('--tertiary-black', '#2a3f31');
-                root.style.setProperty('--accent-green', '#2ecc71');
-                root.style.setProperty('--accent-green-light', '#27ae60');
-                break;
-            default:
-                root.style.setProperty('--primary-black', '#0a0e27');
-                root.style.setProperty('--secondary-black', '#1a1f3a');
-                root.style.setProperty('--tertiary-black', '#252d45');
-                root.style.setProperty('--accent-green', '#00d084');
-                root.style.setProperty('--accent-green-light', '#1ae8a0');
-        }
-
-        localStorage.setItem('MessagingServiceTheme', theme);
     }
 
     createParticleOnMouse(e) {
@@ -208,17 +168,8 @@ style.textContent = `
             transform: translateY(-30px);
         }
     }
-
-    select {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    }
-
-    select option {
-        background: #1a1f3a;
-        color: #ffffff;
-    }
 `;
 document.head.appendChild(style);
 
 // Initialize visual enhancements
-const Service = new MessagingService();
+const chat = new MessagingService();
