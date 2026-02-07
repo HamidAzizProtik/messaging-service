@@ -1,22 +1,559 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Messaging Service</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messaging Service - Premium Messaging</title>
     <style>
-        body { font-family: Arial; margin: 10px; }
-        #chat { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 5px; margin-top: 10px; }
-        input { margin: 5px 0; width: 100%; box-sizing: border-box; padding: 5px; }
-        button { width: 100%; padding: 10px; margin-top: 5px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-black: #0a0e27;
+            --secondary-black: #1a1f3a;
+            --tertiary-black: #252d45;
+            --accent-green: #00d084;
+            --accent-green-light: #1ae8a0;
+            --accent-green-dim: #008850;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b8d4;
+            --border-color: #2a3250;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-black) 0%, #0f1229 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+            background: var(--primary-black);
+        }
+
+        /* Sidebar - User Setup */
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(180deg, var(--secondary-black) 0%, var(--tertiary-black) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .form-group input {
+            background: var(--primary-black);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 20px rgba(0, 208, 132, 0.3);
+            background: rgba(0, 208, 132, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(0, 208, 132, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--accent-green);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Main Service Area */
+        .Service-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        .Service-header {
+            background: linear-gradient(180deg, var(--secondary-black) 0%, var(--tertiary-black) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .Service-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .Service-header p {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .messages-area {
+            flex: 1;
+            background: linear-gradient(180deg, var(--secondary-black) 0%, var(--primary-black) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .messages-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages-area::-webkit-scrollbar-thumb {
+            background: var(--accent-green);
+            border-radius: 4px;
+            opacity: 0.5;
+        }
+
+        .messages-area::-webkit-scrollbar-thumb:hover {
+            opacity: 1;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+            gap: 15px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            opacity: 0.3;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: messageAppear 0.4s ease-out;
+        }
+
+        .message.own {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message.other {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 60%;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.own .message-content {
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-light) 100%);
+            color: var(--primary-black);
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0, 208, 132, 0.2);
+        }
+
+        .message.other .message-content {
+            background: var(--tertiary-black);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .message-info {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            padding: 0 5px;
+        }
+
+        .message.own .message-info {
+            text-align: right;
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            gap: 12px;
+            background: linear-gradient(180deg, var(--secondary-black) 0%, var(--tertiary-black) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .message-input {
+            width: 100%;
+            background: var(--primary-black);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            resize: none;
+            max-height: 120px;
+            min-height: 44px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .message-input:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 20px rgba(0, 208, 132, 0.3);
+            background: rgba(0, 208, 132, 0.05);
+        }
+
+        .message-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-light) 100%);
+            color: var(--primary-black);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 208, 132, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 208, 132, 0.4);
+        }
+
+        .send-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .send-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .send-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Animations */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(0, 208, 132, 0.5);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(0, 208, 132, 0.8);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .sidebar {
+                width: 100%;
+                order: -1;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+        }
+
+        /* Floating elements for "alive" feel */
+        .message-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .message.own .message-content {
+            animation: slideInMessageRight 0.4s ease-out;
+        }
+
+        .message.other .message-content {
+            animation: slideInMessageLeft 0.4s ease-out;
+        }
+
+        @keyframes slideInMessageRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInMessageLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .input-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .message-input:focus ~ .input-wrapper::after,
+        .message-input:focus + .input-wrapper::after {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
-    <h2>Messaging Service</h2>
-    <input id="username" placeholder="Enter username">
-    <input id="message" placeholder="Enter message">
-    <button onclick="sendMessage()">Send</button>
-    <div id="chat"></div>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">✨ Messaging Service</div>
+            
+            <div class="form-group">
+                <label for="username">Your Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    placeholder="Enter your name..."
+                    maxlength="20"
+                >
+            </div>
 
-    <script src="/static/script.js"></script>
+            <div class="form-group">
+                <label for="theme-select">Service Theme</label>
+                <select id="theme-select" style="
+                    background: var(--primary-black);
+                    border: 2px solid var(--border-color);
+                    color: var(--text-primary);
+                    padding: 12px 15px;
+                    border-radius: 10px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">
+                    <option value="default">Premium Dark</option>
+                    <option value="deep">Deep Ocean</option>
+                    <option value="forest">Forest Green</option>
+                </select>
+            </div>
+
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span id="status-text">Ready to Service</span>
+            </div>
+
+            <div style="
+                font-size: 12px;
+                color: var(--text-secondary);
+                line-height: 1.8;
+                text-align: center;
+                border-top: 1px solid var(--border-color);
+                padding-top: 20px;
+            ">
+                💬 Enjoy seamless communication<br/>
+                ✨ Premium messaging experience<br/>
+                🔐 Private & secure Service
+            </div>
+        </div>
+
+        <!-- Service Area -->
+        <div class="Service-container">
+            <div class="Service-header">
+                <h1>Welcome to Messaging Service</h1>
+                <p id="header-subtitle">Enter your name to start messaging</p>
+            </div>
+
+            <div class="messages-area" id="messagesArea">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <div>
+                        <strong>No messages yet</strong>
+                        <p>Start a conversation to see messages appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Type your message... (Enter to send)"
+                    ></textarea>
+                </div>
+                <button class="send-btn" id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

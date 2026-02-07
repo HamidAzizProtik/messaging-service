@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 import sqlite3
 
 app = Flask(__name__)
+CORS(app)
 DB = 'messages.db'
 
-# Initialize DB if not exists
 def init_db():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
@@ -21,12 +22,10 @@ def init_db():
 
 init_db()
 
-# Serve chat page
 @app.route('/')
 def index():
     return render_template('chat.html')
 
-# Get last 50 messages
 @app.route('/messages', methods=['GET'])
 def get_messages():
     conn = sqlite3.connect(DB)
@@ -34,10 +33,9 @@ def get_messages():
     c.execute('SELECT username, content, timestamp FROM messages ORDER BY id DESC LIMIT 50')
     rows = c.fetchall()
     conn.close()
-    rows.reverse()  # show oldest first
+    rows.reverse()
     return jsonify(rows)
 
-# Send a new message
 @app.route('/send', methods=['POST'])
 def send_message():
     data = request.get_json()
