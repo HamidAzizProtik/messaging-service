@@ -12,7 +12,7 @@ async function fetchMessages() {
         const newMessages = lastIndex === -1 ? messages : messages.slice(lastIndex);
         
         newMessages.forEach(msg => {
-            const msgTime = new Date(m[2]).getTime();
+            const msgTime = new Date(msg[2]).getTime();
             if (msgTime > lastMessageId) {
                 lastMessageId = msgTime;
                 
