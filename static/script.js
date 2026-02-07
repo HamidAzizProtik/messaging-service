@@ -1,8 +1,13 @@
+console.log('Script loaded');
+
 // Fetch messages from server
 async function fetchMessages() {
     try {
+        console.log('Fetching messages...');
         const res = await fetch('/messages');
+        console.log('Response status:', res.status);
         const messages = await res.json();
+        console.log('Messages received:', messages.length);
         const chatDiv = document.getElementById('messagesArea');
         
         chatDiv.innerHTML = '';
@@ -20,46 +25,62 @@ async function fetchMessages() {
 
 // Send message to server
 async function sendMessage() {
-    const username = document.getElementById('username').value.trim();
-    const message = document.getElementById('messageInput').value.trim();
+    const usernameInput = document.getElementById('username');
+    const messageInput = document.getElementById('messageInput');
+    const username = usernameInput.value.trim();
+    const message = messageInput.value.trim();
+    
+    console.log('Send attempt - username:', username, 'message:', message);
+    
     if (!username || !message) {
         alert('Please enter username and message');
         return;
     }
 
     try {
+        console.log('Sending to /send...');
         const response = await fetch('/send', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({username: username, content: message})
         });
         
+        console.log('Send response status:', response.status);
+        
         if (response.ok) {
-            document.getElementById('messageInput').value = '';
+            messageInput.value = '';
             fetchMessages();
         } else {
             alert('Failed to send message');
         }
     } catch (error) {
         console.error('Error sending message:', error);
-        alert('Error sending message');
+        alert('Error sending message: ' + error.message);
     }
 }
 
 // Set up event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, setting up listeners...');
+    
     // Start polling
     setInterval(fetchMessages, 2000);
     fetchMessages();
     
     // Send button click
-    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    const sendBtn = document.getElementById('sendBtn');
+    console.log('Send button found:', !!sendBtn);
+    sendBtn.addEventListener('click', sendMessage);
     
     // Enter key in message input
-    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+    const messageInput = document.getElementById('messageInput');
+    console.log('Message input found:', !!messageInput);
+    messageInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
     });
+    
+    console.log('Setup complete');
 });
