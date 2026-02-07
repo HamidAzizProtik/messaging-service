@@ -22,31 +22,44 @@ async function fetchMessages() {
 async function sendMessage() {
     const username = document.getElementById('username').value.trim();
     const message = document.getElementById('messageInput').value.trim();
-    if (!username || !message) return alert('Please enter username and message');
+    if (!username || !message) {
+        alert('Please enter username and message');
+        return;
+    }
 
     try {
-        await fetch('/send', {
+        const response = await fetch('/send', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username, content: message})
+            body: JSON.stringify({username: username, content: message})
         });
-        document.getElementById('messageInput').value = '';
-        fetchMessages();
+        
+        if (response.ok) {
+            document.getElementById('messageInput').value = '';
+            fetchMessages();
+        } else {
+            alert('Failed to send message');
+        }
     } catch (error) {
         console.error('Error sending message:', error);
+        alert('Error sending message');
     }
 }
 
-// Poll for new messages every 2 seconds
-setInterval(fetchMessages, 2000);
-fetchMessages();
-
-// Event listeners
-document.getElementById('messageInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
+// Set up event listeners when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Start polling
+    setInterval(fetchMessages, 2000);
+    fetchMessages();
+    
+    // Send button click
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    
+    // Enter key in message input
+    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
 });
-
-document.getElementById('sendBtn').addEventListener('click', sendMessage);
